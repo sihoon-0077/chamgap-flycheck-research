@@ -1,0 +1,937 @@
+{
+  "stage": "main",
+  "domain": "SIM_ONLY_UNCALIBRATED",
+  "claim_scope": "learning-curve behaviour in an uncalibrated toy simulator only",
+  "prereg": {
+    "path": "experiments/PREREG_connectome_v1.md",
+    "sha256": "4b92fe14fc7c051a44457688282cdd120f9eb4f9662a176e3ae8452c88073b3e"
+  },
+  "created_unix": 1791096708.6233668,
+  "wall_seconds": 2946.9,
+  "python": "3.12.10",
+  "torch": "2.14.1+cpu",
+  "numpy": "2.5.3",
+  "code_sha256": {
+    "chamgap/__init__.py": "eedc6a1bda105d1e9b4937085e18923b50e6164efa63fdaeaada216303afba70",
+    "chamgap/collect.py": "4d02a2e7e56a8a77a16e28d16be7cb1138c9a7398d81568b10340b483aaa3109",
+    "chamgap/connectome.py": "ca7041d247d150580e3fb91dbfb904b1d1f60c40764b420caa36195f1a3fed90",
+    "chamgap/contracts.py": "00ae78eb4b1472cfcfa57c9654f97ac382a4084f2f89815b72f7a17655dee3f9",
+    "chamgap/evaluate.py": "60a47d2c2bfe4eb6be720e853a3a98fc6101b112491cbb0a4ef566395ff11737",
+    "chamgap/features.py": "8c280f23274944a7c9e193ab8875271617e05428eaabe9d395d5b9352befd687",
+    "chamgap/gym_adapter.py": "f4ad6489bedf110e00866f8c85174c64a67588faf44369e23fc69671f48e68cc",
+    "chamgap/model.py": "8a3d0aeb21a4749c4da9227c12cdff6936037b0c662617027f8fe1a21c5bcac1",
+    "chamgap/policies.py": "f2f65938f505185baf09d457a85e592f90bc4c28bebc3eb168f6113de446aa9e",
+    "chamgap/safety.py": "1979aa351b02cff2a0f7d16c03d3c321133bfdd8c19922bf47efdce30754783c",
+    "chamgap/simulator.py": "c01e17b44caefaeb8a9549584f2b162ad7b6b3641331e4fb5ddac26b40c14002",
+    "chamgap/train.py": "da5f8680745e729c2760fe6b525721a68ffd0ba1c193ccdbafc51ee0bad1477a",
+    "chamgap/validator.py": "6d3243f67499f71a38db66d4b42a7a20241f3f747f74da140a1c0346282815b1",
+    "experiments/connectome_curve.py": "41b9daad3da3433093f751228ecb538508d907bc556967a47977780301848885",
+    "experiments/sim_v2.py": "d120f1aa095fa4878a9ee92f6fb9149c0cd307ad0b82bf94930ab7b4cdc7e248",
+    "experiments/learning_curve.py": "9933018518c0b87e442e610535085f375c537a530b43a39d93ca8d8b2787da9c",
+    "experiments/build_real_connectome.py": "7ecf0038ef2304e597c0a3b53b7960289dbc9a7674b550c522173a398f804af2"
+  },
+  "sim_v2": {
+    "reward": {
+      "version": "toy-physical-v0.1-unfitted",
+      "max_steps": 5,
+      "pulse_ml": 10.0,
+      "max_water_ml": 20.0,
+      "resample_s": 20.0,
+      "compare_s": 10.0,
+      "pulse_observe_s": 180.0,
+      "correct_reward": 5.0,
+      "wrong_reward": -10.0,
+      "inspection_cost": 1.2,
+      "timeout_cost": 1.5,
+      "time_cost_per_s": 0.001,
+      "water_cost_per_ml": 0.08
+    },
+    "rule_a": "REQUEST_INSPECTION masked while resample_count + compare_count + pulse_count == 0, unless estop or leak is active or no check action is allowed",
+    "patched_modules": [
+      "chamgap.contracts",
+      "chamgap.simulator",
+      "chamgap.collect",
+      "chamgap.evaluate",
+      "chamgap.policies"
+    ]
+  },
+  "real_mask": {
+    "path": "data/connectome/hemibrain_v121_caR_olf51.npy",
+    "sha256": "9f42b8bb8e8eb610b47c188a4f0d0bbf70d568da2b3603f7952aafa8bb7cd7e4",
+    "shape_kc_pn": [
+      1723,
+      51
+    ],
+    "edges": 9159,
+    "label": "HEMIBRAIN_V1.2.1_CA_R_OLF51_RULE_SELECTED_PENDING_REVIEW",
+    "review_status": "PENDING_TEAM_REVIEW",
+    "license_url": "https://creativecommons.org/licenses/by/4.0/"
+  },
+  "design": {
+    "models": {
+      "mlp_matched": {
+        "kind": "mlp",
+        "id": "P1",
+        "connectome": "NONE"
+      },
+      "fly_rewired": {
+        "kind": "fly",
+        "id": "P2",
+        "connectome": "REWIRED_FROM_HEMIBRAIN_NOT_BIOLOGICAL"
+      },
+      "fly_real": {
+        "kind": "fly",
+        "id": "P3"
+      },
+      "fly_random_fanin": {
+        "kind": "fly",
+        "id": "R",
+        "connectome": "RANDOM_FANIN_MATCHED_NOT_BIOLOGICAL"
+      }
+    },
+    "matched_mlp_hidden": 254,
+    "fly_params": 8375,
+    "target_optimizer_steps": 1500,
+    "batch": 64,
+    "replicas": 3,
+    "test": [
+      900001,
+      1000
+    ],
+    "validation": [
+      800001,
+      500
+    ],
+    "lr_grid": [
+      0.001,
+      0.003,
+      0.01
+    ],
+    "lr_choice": {
+      "mlp_matched": 0.001,
+      "fly_rewired": 0.003,
+      "fly_real": 0.001,
+      "fly_random_fanin": 0.01
+    },
+    "jobs": 480
+  },
+  "checks": {
+    "train_vs_heldout_seed_overlap": 0,
+    "train_reset_seeds_logged": 24000,
+    "prefix_property": {
+      "17": true,
+      "29": true,
+      "43": true,
+      "61": true,
+      "79": true,
+      "82": true,
+      "85": true,
+      "88": true,
+      "91": true,
+      "94": true,
+      "97": true,
+      "100": true,
+      "103": true,
+      "106": true,
+      "109": true,
+      "112": true,
+      "115": true,
+      "121": true,
+      "124": true,
+      "127": true,
+      "133": true,
+      "136": true,
+      "139": true,
+      "147": true,
+      "150": true,
+      "153": true,
+      "156": true,
+      "159": true,
+      "165": true,
+      "168": true
+    },
+    "rule_a_and_reward_v2_verified_per_episode": true
+  },
+  "pools": {
+    "17": {
+      "pool": 2000,
+      "subsets": {
+        "50": {
+          "rows": 146,
+          "groups": 50
+        },
+        "100": {
+          "rows": 265,
+          "groups": 100
+        },
+        "200": {
+          "rows": 518,
+          "groups": 199
+        },
+        "500": {
+          "rows": 1275,
+          "groups": 496
+        },
+        "1000": {
+          "rows": 2529,
+          "groups": 994
+        },
+        "2000": {
+          "rows": 5073,
+          "groups": 1987
+        }
+      },
+      "rewire": {
+        "requested_swaps": 91590,
+        "successful_swaps": 91590,
+        "edge_overlap_fraction": 0.1423736215744077
+      }
+    },
+    "29": {
+      "pool": 2000,
+      "subsets": {
+        "50": {
+          "rows": 124,
+          "groups": 50
+        },
+        "100": {
+          "rows": 243,
+          "groups": 99
+        },
+        "200": {
+          "rows": 494,
+          "groups": 199
+        },
+        "500": {
+          "rows": 1282,
+          "groups": 498
+        },
+        "1000": {
+          "rows": 2510,
+          "groups": 995
+        },
+        "2000": {
+          "rows": 4981,
+          "groups": 1987
+        }
+      },
+      "rewire": {
+        "requested_swaps": 91590,
+        "successful_swaps": 91590,
+        "edge_overlap_fraction": 0.14936128398296758
+      }
+    },
+    "43": {
+      "pool": 2000,
+      "subsets": {
+        "50": {
+          "rows": 128,
+          "groups": 50
+        },
+        "100": {
+          "rows": 247,
+          "groups": 97
+        },
+        "200": {
+          "rows": 484,
+          "groups": 197
+        },
+        "500": {
+          "rows": 1268,
+          "groups": 496
+        },
+        "1000": {
+          "rows": 2502,
+          "groups": 994
+        },
+        "2000": {
+          "rows": 5027,
+          "groups": 1991
+        }
+      },
+      "rewire": {
+        "requested_swaps": 91590,
+        "successful_swaps": 91590,
+        "edge_overlap_fraction": 0.1575499508679987
+      }
+    },
+    "61": {
+      "pool": 2000,
+      "subsets": {
+        "50": {
+          "rows": 105,
+          "groups": 49
+        },
+        "100": {
+          "rows": 227,
+          "groups": 99
+        },
+        "200": {
+          "rows": 472,
+          "groups": 199
+        },
+        "500": {
+          "rows": 1218,
+          "groups": 497
+        },
+        "1000": {
+          "rows": 2453,
+          "groups": 991
+        },
+        "2000": {
+          "rows": 4922,
+          "groups": 1981
+        }
+      },
+      "rewire": {
+        "requested_swaps": 91590,
+        "successful_swaps": 91590,
+        "edge_overlap_fraction": 0.15274593296211378
+      }
+    },
+    "79": {
+      "pool": 2000,
+      "subsets": {
+        "50": {
+          "rows": 143,
+          "groups": 50
+        },
+        "100": {
+          "rows": 270,
+          "groups": 98
+        },
+        "200": {
+          "rows": 548,
+          "groups": 198
+        },
+        "500": {
+          "rows": 1310,
+          "groups": 496
+        },
+        "1000": {
+          "rows": 2564,
+          "groups": 992
+        },
+        "2000": {
+          "rows": 5039,
+          "groups": 1986
+        }
+      },
+      "rewire": {
+        "requested_swaps": 91590,
+        "successful_swaps": 91590,
+        "edge_overlap_fraction": 0.14630418167922263
+      }
+    },
+    "82": {
+      "pool": 2000,
+      "subsets": {
+        "50": {
+          "rows": 126,
+          "groups": 48
+        },
+        "100": {
+          "rows": 242,
+          "groups": 98
+        },
+        "200": {
+          "rows": 502,
+          "groups": 197
+        },
+        "500": {
+          "rows": 1254,
+          "groups": 494
+        },
+        "1000": {
+          "rows": 2492,
+          "groups": 987
+        },
+        "2000": {
+          "rows": 5033,
+          "groups": 1984
+        }
+      },
+      "rewire": {
+        "requested_swaps": 91590,
+        "successful_swaps": 91590,
+        "edge_overlap_fraction": 0.15067147068457254
+      }
+    },
+    "85": {
+      "pool": 2000,
+      "subsets": {
+        "50": {
+          "rows": 127,
+          "groups": 50
+        },
+        "100": {
+          "rows": 253,
+          "groups": 100
+        },
+        "200": {
+          "rows": 501,
+          "groups": 199
+        },
+        "500": {
+          "rows": 1244,
+          "groups": 496
+        },
+        "1000": {
+          "rows": 2526,
+          "groups": 991
+        },
+        "2000": {
+          "rows": 5041,
+          "groups": 1984
+        }
+      },
+      "rewire": {
+        "requested_swaps": 91590,
+        "successful_swaps": 91590,
+        "edge_overlap_fraction": 0.15209083961131128
+      }
+    },
+    "88": {
+      "pool": 2000,
+      "subsets": {
+        "50": {
+          "rows": 120,
+          "groups": 50
+        },
+        "100": {
+          "rows": 244,
+          "groups": 100
+        },
+        "200": {
+          "rows": 492,
+          "groups": 199
+        },
+        "500": {
+          "rows": 1264,
+          "groups": 497
+        },
+        "1000": {
+          "rows": 2535,
+          "groups": 992
+        },
+        "2000": {
+          "rows": 5024,
+          "groups": 1985
+        }
+      },
+      "rewire": {
+        "requested_swaps": 91590,
+        "successful_swaps": 91590,
+        "edge_overlap_fraction": 0.14652254612949012
+      }
+    },
+    "91": {
+      "pool": 2000,
+      "subsets": {
+        "50": {
+          "rows": 124,
+          "groups": 50
+        },
+        "100": {
+          "rows": 242,
+          "groups": 100
+        },
+        "200": {
+          "rows": 494,
+          "groups": 200
+        },
+        "500": {
+          "rows": 1258,
+          "groups": 498
+        },
+        "1000": {
+          "rows": 2523,
+          "groups": 995
+        },
+        "2000": {
+          "rows": 4998,
+          "groups": 1987
+        }
+      },
+      "rewire": {
+        "requested_swaps": 91590,
+        "successful_swaps": 91590,
+        "edge_overlap_fraction": 0.15547548859045748
+      }
+    },
+    "94": {
+      "pool": 2000,
+      "subsets": {
+        "50": {
+          "rows": 126,
+          "groups": 49
+        },
+        "100": {
+          "rows": 246,
+          "groups": 99
+        },
+        "200": {
+          "rows": 495,
+          "groups": 197
+        },
+        "500": {
+          "rows": 1279,
+          "groups": 497
+        },
+        "1000": {
+          "rows": 2564,
+          "groups": 993
+        },
+        "2000": {
+          "rows": 5065,
+          "groups": 1986
+        }
+      },
+      "rewire": {
+        "requested_swaps": 91590,
+        "successful_swaps": 91590,
+        "edge_overlap_fraction": 0.14368380827601265
+      }
+    },
+    "97": {
+      "pool": 200,
+      "subsets": {
+        "50": {
+          "rows": 133,
+          "groups": 50
+        },
+        "100": {
+          "rows": 247,
+          "groups": 99
+        },
+        "200": {
+          "rows": 494,
+          "groups": 198
+        }
+      },
+      "rewire": {
+        "requested_swaps": 91590,
+        "successful_swaps": 91590,
+        "edge_overlap_fraction": 0.14543072387815265
+      }
+    },
+    "100": {
+      "pool": 200,
+      "subsets": {
+        "50": {
+          "rows": 120,
+          "groups": 48
+        },
+        "100": {
+          "rows": 254,
+          "groups": 98
+        },
+        "200": {
+          "rows": 495,
+          "groups": 197
+        }
+      },
+      "rewire": {
+        "requested_swaps": 91590,
+        "successful_swaps": 91590,
+        "edge_overlap_fraction": 0.15765913309313243
+      }
+    },
+    "103": {
+      "pool": 200,
+      "subsets": {
+        "50": {
+          "rows": 140,
+          "groups": 50
+        },
+        "100": {
+          "rows": 280,
+          "groups": 100
+        },
+        "200": {
+          "rows": 532,
+          "groups": 200
+        }
+      },
+      "rewire": {
+        "requested_swaps": 91590,
+        "successful_swaps": 91590,
+        "edge_overlap_fraction": 0.15176329293591004
+      }
+    },
+    "106": {
+      "pool": 200,
+      "subsets": {
+        "50": {
+          "rows": 133,
+          "groups": 49
+        },
+        "100": {
+          "rows": 255,
+          "groups": 99
+        },
+        "200": {
+          "rows": 502,
+          "groups": 198
+        }
+      },
+      "rewire": {
+        "requested_swaps": 91590,
+        "successful_swaps": 91590,
+        "edge_overlap_fraction": 0.14652254612949012
+      }
+    },
+    "109": {
+      "pool": 200,
+      "subsets": {
+        "50": {
+          "rows": 124,
+          "groups": 50
+        },
+        "100": {
+          "rows": 248,
+          "groups": 100
+        },
+        "200": {
+          "rows": 498,
+          "groups": 200
+        }
+      },
+      "rewire": {
+        "requested_swaps": 91590,
+        "successful_swaps": 91590,
+        "edge_overlap_fraction": 0.14685009280489136
+      }
+    },
+    "112": {
+      "pool": 200,
+      "subsets": {
+        "50": {
+          "rows": 122,
+          "groups": 50
+        },
+        "100": {
+          "rows": 246,
+          "groups": 100
+        },
+        "200": {
+          "rows": 516,
+          "groups": 199
+        }
+      },
+      "rewire": {
+        "requested_swaps": 91590,
+        "successful_swaps": 91590,
+        "edge_overlap_fraction": 0.15307347963751503
+      }
+    },
+    "115": {
+      "pool": 200,
+      "subsets": {
+        "50": {
+          "rows": 135,
+          "groups": 50
+        },
+        "100": {
+          "rows": 261,
+          "groups": 100
+        },
+        "200": {
+          "rows": 504,
+          "groups": 198
+        }
+      },
+      "rewire": {
+        "requested_swaps": 91590,
+        "successful_swaps": 91590,
+        "edge_overlap_fraction": 0.1478327328310951
+      }
+    },
+    "121": {
+      "pool": 200,
+      "subsets": {
+        "50": {
+          "rows": 121,
+          "groups": 50
+        },
+        "100": {
+          "rows": 253,
+          "groups": 100
+        },
+        "200": {
+          "rows": 492,
+          "groups": 200
+        }
+      },
+      "rewire": {
+        "requested_swaps": 91590,
+        "successful_swaps": 91590,
+        "edge_overlap_fraction": 0.15318266186264876
+      }
+    },
+    "124": {
+      "pool": 200,
+      "subsets": {
+        "50": {
+          "rows": 123,
+          "groups": 50
+        },
+        "100": {
+          "rows": 254,
+          "groups": 100
+        },
+        "200": {
+          "rows": 514,
+          "groups": 199
+        }
+      },
+      "rewire": {
+        "requested_swaps": 91590,
+        "successful_swaps": 91590,
+        "edge_overlap_fraction": 0.15067147068457254
+      }
+    },
+    "127": {
+      "pool": 200,
+      "subsets": {
+        "50": {
+          "rows": 134,
+          "groups": 50
+        },
+        "100": {
+          "rows": 266,
+          "groups": 100
+        },
+        "200": {
+          "rows": 524,
+          "groups": 200
+        }
+      },
+      "rewire": {
+        "requested_swaps": 91590,
+        "successful_swaps": 91590,
+        "edge_overlap_fraction": 0.1528551151872475
+      }
+    },
+    "133": {
+      "pool": 200,
+      "subsets": {
+        "50": {
+          "rows": 121,
+          "groups": 49
+        },
+        "100": {
+          "rows": 255,
+          "groups": 99
+        },
+        "200": {
+          "rows": 509,
+          "groups": 198
+        }
+      },
+      "rewire": {
+        "requested_swaps": 91590,
+        "successful_swaps": 91590,
+        "edge_overlap_fraction": 0.15492957746478872
+      }
+    },
+    "136": {
+      "pool": 200,
+      "subsets": {
+        "50": {
+          "rows": 136,
+          "groups": 50
+        },
+        "100": {
+          "rows": 262,
+          "groups": 100
+        },
+        "200": {
+          "rows": 519,
+          "groups": 200
+        }
+      },
+      "rewire": {
+        "requested_swaps": 91590,
+        "successful_swaps": 91590,
+        "edge_overlap_fraction": 0.1546020307893875
+      }
+    },
+    "139": {
+      "pool": 200,
+      "subsets": {
+        "50": {
+          "rows": 124,
+          "groups": 50
+        },
+        "100": {
+          "rows": 247,
+          "groups": 100
+        },
+        "200": {
+          "rows": 489,
+          "groups": 200
+        }
+      },
+      "rewire": {
+        "requested_swaps": 91590,
+        "successful_swaps": 91590,
+        "edge_overlap_fraction": 0.1514357462605088
+      }
+    },
+    "147": {
+      "pool": 200,
+      "subsets": {
+        "50": {
+          "rows": 119,
+          "groups": 49
+        },
+        "100": {
+          "rows": 248,
+          "groups": 99
+        },
+        "200": {
+          "rows": 506,
+          "groups": 199
+        }
+      },
+      "rewire": {
+        "requested_swaps": 91590,
+        "successful_swaps": 91590,
+        "edge_overlap_fraction": 0.14608581722895514
+      }
+    },
+    "150": {
+      "pool": 200,
+      "subsets": {
+        "50": {
+          "rows": 123,
+          "groups": 50
+        },
+        "100": {
+          "rows": 257,
+          "groups": 100
+        },
+        "200": {
+          "rows": 502,
+          "groups": 198
+        }
+      },
+      "rewire": {
+        "requested_swaps": 91590,
+        "successful_swaps": 91590,
+        "edge_overlap_fraction": 0.1467409105797576
+      }
+    },
+    "153": {
+      "pool": 200,
+      "subsets": {
+        "50": {
+          "rows": 120,
+          "groups": 49
+        },
+        "100": {
+          "rows": 243,
+          "groups": 99
+        },
+        "200": {
+          "rows": 474,
+          "groups": 196
+        }
+      },
+      "rewire": {
+        "requested_swaps": 91590,
+        "successful_swaps": 91590,
+        "edge_overlap_fraction": 0.15351020853805
+      }
+    },
+    "156": {
+      "pool": 200,
+      "subsets": {
+        "50": {
+          "rows": 134,
+          "groups": 50
+        },
+        "100": {
+          "rows": 260,
+          "groups": 100
+        },
+        "200": {
+          "rows": 524,
+          "groups": 200
+        }
+      },
+      "rewire": {
+        "requested_swaps": 91590,
+        "successful_swaps": 91590,
+        "edge_overlap_fraction": 0.15351020853805
+      }
+    },
+    "159": {
+      "pool": 200,
+      "subsets": {
+        "50": {
+          "rows": 129,
+          "groups": 50
+        },
+        "100": {
+          "rows": 245,
+          "groups": 97
+        },
+        "200": {
+          "rows": 507,
+          "groups": 196
+        }
+      },
+      "rewire": {
+        "requested_swaps": 91590,
+        "successful_swaps": 91590,
+        "edge_overlap_fraction": 0.14728682170542637
+      }
+    },
+    "165": {
+      "pool": 200,
+      "subsets": {
+        "50": {
+          "rows": 130,
+          "groups": 49
+        },
+        "100": {
+          "rows": 263,
+          "groups": 98
+        },
+        "200": {
+          "rows": 512,
+          "groups": 198
+        }
+      },
+      "rewire": {
+        "requested_swaps": 91590,
+        "successful_swaps": 91590,
+        "edge_overlap_fraction": 0.15110819958510754
+      }
+    },
+    "168": {
+      "pool": 200,
+      "subsets": {
+        "50": {
+          "rows": 119,
+          "groups": 50
+        },
+        "100": {
+          "rows": 238,
+          "groups": 100
+        },
+        "200": {
+          "rows": 492,
+          "groups": 197
+        }
+      },
+      "rewire": {
+        "requested_swaps": 91590,
+        "successful_swaps": 91590,
+        "edge_overlap_fraction": 0.1467409105797576
+      }
+    }
+  }
+}

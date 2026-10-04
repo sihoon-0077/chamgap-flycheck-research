@@ -1,0 +1,92 @@
+{
+  "status": "SOFTWARE_SMOKE_ONLY_NO_REAL_CONNECTOME_OR_HARDWARE",
+  "date": "2026-09-28",
+  "python": "3.13.5",
+  "package_versions": {
+    "numpy": "2.3.5",
+    "pandas": "2.2.3",
+    "torch": "2.10.0+cpu",
+    "pytest": "9.0.2",
+    "scikit-learn": "1.8.0",
+    "fastapi": "0.128.2"
+  },
+  "device": "CPU",
+  "unit_tests": {
+    "command": "python -m pytest -q",
+    "passed": 19
+  },
+  "dataset_generation": {
+    "domain": "SIM_ONLY_UNCALIBRATED",
+    "sim_version": "toy-physical-v0.1-unfitted",
+    "features": [
+      "channel_soil",
+      "channel_temperature",
+      "channel_humidity",
+      "target_scaled",
+      "target_delta",
+      "target_std",
+      "target_age_scaled",
+      "comparison_scaled",
+      "comparison_valid",
+      "comparison_age_scaled",
+      "pair_abs_difference",
+      "last_command_ml_scaled",
+      "delivered_ml_scaled",
+      "delivery_valid",
+      "response_scaled",
+      "response_valid",
+      "air_temperature_scaled",
+      "air_humidity_scaled",
+      "elapsed_scaled",
+      "resample_count",
+      "compare_count",
+      "pulse_count",
+      "remaining_water_scaled",
+      "permit_pulse",
+      "scale_ok",
+      "estop",
+      "leak",
+      "cooldown_done"
+    ],
+    "episodes_requested": 240,
+    "groups_saved": 237,
+    "rows": 507,
+    "replicas": 3,
+    "seed": 17,
+    "target": "return_after_first_action_then_fixed_continuation",
+    "truth_in_features": false
+  },
+  "training": {
+    "models": [
+      "MLP",
+      "Fly-style with DEMO_RANDOM_NOT_BIOLOGICAL projection"
+    ],
+    "epochs_each": 30
+  },
+  "evaluation": {
+    "episodes_per_policy": 90,
+    "policies": [
+      "fixed",
+      "MLP",
+      "random-demo-fly"
+    ],
+    "distribution": "same uncalibrated simulator, new seeds"
+  },
+  "additional_checks": {
+    "read_only_fastapi_assertions": 4,
+    "pump_fit": "synthetic CSV only",
+    "normal_response_fit": "synthetic CSV only"
+  },
+  "not_verified": [
+    "actual neuPrint fetch and reviewed neuron selection",
+    "Gymnasium optional adapter",
+    "real connectome efficacy",
+    "GPU execution",
+    "ESP32 firmware",
+    "physical safety",
+    "physical sensor performance",
+    "frame assembly/load",
+    "MQTT/PostgreSQL deployment",
+    "retail BOM price/availability"
+  ]
+}

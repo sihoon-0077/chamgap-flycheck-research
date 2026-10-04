@@ -1,0 +1,31 @@
+comparison,a,b,n_episodes,n_seeds,mean_diff,ci_level,ci_lo,ci_hi,seeds_positive,decision,primary
+P3 - P2,fly_real,fly_rewired,50,30,0.004986,0.991667,-0.134892,0.136911,18,판정 불가,True
+P3 - P2,fly_real,fly_rewired,100,30,-0.045155,0.991667,-0.16295,0.060926,11,판정 불가,True
+P3 - P2,fly_real,fly_rewired,200,30,0.054945,0.991667,-0.004251,0.125704,15,판정 불가,True
+P3 - P2,fly_real,fly_rewired,500,10,-0.029818,0.95,-0.093091,0.030086,4,동등 (±0.10),False
+P3 - P2,fly_real,fly_rewired,1000,10,-0.05224,0.95,-0.096541,-0.007019,3,"P3 낮음, 차이 0.10 미만",False
+P3 - P2,fly_real,fly_rewired,2000,10,-0.00902,0.95,-0.056263,0.048951,4,동등 (±0.10),False
+P3 - P1,fly_real,mlp_matched,50,30,-0.011637,0.991667,-0.147379,0.109909,16,판정 불가,True
+P3 - P1,fly_real,mlp_matched,100,30,-0.004365,0.991667,-0.142293,0.116145,18,판정 불가,True
+P3 - P1,fly_real,mlp_matched,200,30,-0.024691,0.991667,-0.120623,0.070348,14,판정 불가,True
+P3 - P1,fly_real,mlp_matched,500,10,-0.062898,0.95,-0.121365,-0.012702,3,P3 낮음,False
+P3 - P1,fly_real,mlp_matched,1000,10,-0.021835,0.95,-0.068883,0.022511,5,동등 (±0.10),False
+P3 - P1,fly_real,mlp_matched,2000,10,-0.007961,0.95,-0.052974,0.037237,5,동등 (±0.10),False
+P2 - R,fly_rewired,fly_random_fanin,50,30,-0.002782,0.95,-0.07475,0.061909,17,동등 (±0.10),False
+P2 - R,fly_rewired,fly_random_fanin,100,30,0.039648,0.95,-0.020231,0.099012,21,동등 (±0.10),False
+P2 - R,fly_rewired,fly_random_fanin,200,30,0.003756,0.95,-0.051151,0.060048,11,동등 (±0.10),False
+P2 - R,fly_rewired,fly_random_fanin,500,10,-0.008073,0.95,-0.056257,0.035771,4,동등 (±0.10),False
+P2 - R,fly_rewired,fly_random_fanin,1000,10,0.036707,0.95,0.00147,0.072951,6,"P2 높음, 차이 0.10 미만",False
+P2 - R,fly_rewired,fly_random_fanin,2000,10,0.029605,0.95,-0.024508,0.088313,5,동등 (±0.10),False
+P1 - P0,mlp_matched,fixed_P0,50,30,-0.141413,0.95,-0.234441,-0.053375,9,P1 낮음,False
+P1 - P0,mlp_matched,fixed_P0,100,30,0.068698,0.95,-0.036634,0.173108,18,판정 불가,False
+P1 - P0,mlp_matched,fixed_P0,200,30,0.348791,0.95,0.267907,0.423822,25,P1 높음,False
+P1 - P0,mlp_matched,fixed_P0,500,10,0.594426,0.95,0.557972,0.634711,10,P1 높음,False
+P1 - P0,mlp_matched,fixed_P0,1000,10,0.651097,0.95,0.624773,0.678311,10,P1 높음,False
+P1 - P0,mlp_matched,fixed_P0,2000,10,0.647715,0.95,0.619625,0.678346,10,P1 높음,False
+P3 - P0,fly_real,fixed_P0,50,30,-0.15305,0.95,-0.246939,-0.066279,6,P3 낮음,False
+P3 - P0,fly_real,fixed_P0,100,30,0.064334,0.95,-0.026529,0.152133,18,판정 불가,False
+P3 - P0,fly_real,fixed_P0,200,30,0.3241,0.95,0.264643,0.380482,29,P3 높음,False
+P3 - P0,fly_real,fixed_P0,500,10,0.531528,0.95,0.455035,0.595275,10,P3 높음,False
+P3 - P0,fly_real,fixed_P0,1000,10,0.629262,0.95,0.582879,0.670911,10,P3 높음,False
+P3 - P0,fly_real,fixed_P0,2000,10,0.639754,0.95,0.612394,0.665931,10,P3 높음,False

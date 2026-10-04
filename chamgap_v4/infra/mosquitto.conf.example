@@ -1,0 +1,14 @@
+# REFERENCE ONLY: configure CA/cert/key and generate password file before use.
+# Do NOT expose broker directly to the internet.
+listener 8883
+allow_anonymous false
+password_file /mosquitto/config/passwd
+acl_file /mosquitto/config/acl
+cafile /mosquitto/config/ca.crt
+certfile /mosquitto/config/server.crt
+keyfile /mosquitto/config/server.key
+persistence true
+persistence_location /mosquitto/data/
+log_type error
+log_type warning
+message_size_limit 16384

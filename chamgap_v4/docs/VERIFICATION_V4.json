@@ -1,0 +1,38 @@
+{
+  "date": "2026-10-01",
+  "scope": "Software only; synthetic simulation and durable dry run; no actual connectome or hardware",
+  "python": "3.13.5",
+  "numpy": "2.3.5",
+  "pandas": "2.2.3",
+  "torch": "2.10.0+cpu",
+  "pydantic": "2.13.4",
+  "pytest": "9.0.2",
+  "python_tests_passed": 46,
+  "cpp_timer_assertions": "native g++ run passed; no ESP32 build",
+  "pipeline": {
+    "episodes_requested": 240,
+    "replicas": 3,
+    "groups_saved": 237,
+    "rows": 507,
+    "features": 28,
+    "epochs_each": 30,
+    "models": [
+      "MLP",
+      "random_projection_fly_shape"
+    ],
+    "eval_episodes_each": 90
+  },
+  "not_verified": [
+    "real neuPrint fetch",
+    "biological neuron selection",
+    "actual PN-KC benefit",
+    "MQTT broker execution",
+    "PostgreSQL schema deployment",
+    "Arduino firmware compile",
+    "real GPIO/pump/load cell",
+    "electrical ratings",
+    "mechanical construction",
+    "live-supervised execution",
+    "field accuracy"
+  ]
+}

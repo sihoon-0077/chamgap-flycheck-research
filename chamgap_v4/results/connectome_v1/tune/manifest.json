@@ -1,0 +1,209 @@
+{
+  "stage": "tune",
+  "domain": "SIM_ONLY_UNCALIBRATED",
+  "claim_scope": "learning-curve behaviour in an uncalibrated toy simulator only",
+  "prereg": {
+    "path": "experiments/PREREG_connectome_v1.md",
+    "sha256": "4b92fe14fc7c051a44457688282cdd120f9eb4f9662a176e3ae8452c88073b3e"
+  },
+  "created_unix": 1791096614.4962273,
+  "wall_seconds": 76.2,
+  "python": "3.12.10",
+  "torch": "2.14.1+cpu",
+  "numpy": "2.5.3",
+  "code_sha256": {
+    "chamgap/__init__.py": "eedc6a1bda105d1e9b4937085e18923b50e6164efa63fdaeaada216303afba70",
+    "chamgap/collect.py": "4d02a2e7e56a8a77a16e28d16be7cb1138c9a7398d81568b10340b483aaa3109",
+    "chamgap/connectome.py": "ca7041d247d150580e3fb91dbfb904b1d1f60c40764b420caa36195f1a3fed90",
+    "chamgap/contracts.py": "00ae78eb4b1472cfcfa57c9654f97ac382a4084f2f89815b72f7a17655dee3f9",
+    "chamgap/evaluate.py": "60a47d2c2bfe4eb6be720e853a3a98fc6101b112491cbb0a4ef566395ff11737",
+    "chamgap/features.py": "8c280f23274944a7c9e193ab8875271617e05428eaabe9d395d5b9352befd687",
+    "chamgap/gym_adapter.py": "f4ad6489bedf110e00866f8c85174c64a67588faf44369e23fc69671f48e68cc",
+    "chamgap/model.py": "8a3d0aeb21a4749c4da9227c12cdff6936037b0c662617027f8fe1a21c5bcac1",
+    "chamgap/policies.py": "f2f65938f505185baf09d457a85e592f90bc4c28bebc3eb168f6113de446aa9e",
+    "chamgap/safety.py": "1979aa351b02cff2a0f7d16c03d3c321133bfdd8c19922bf47efdce30754783c",
+    "chamgap/simulator.py": "c01e17b44caefaeb8a9549584f2b162ad7b6b3641331e4fb5ddac26b40c14002",
+    "chamgap/train.py": "da5f8680745e729c2760fe6b525721a68ffd0ba1c193ccdbafc51ee0bad1477a",
+    "chamgap/validator.py": "6d3243f67499f71a38db66d4b42a7a20241f3f747f74da140a1c0346282815b1",
+    "experiments/connectome_curve.py": "41b9daad3da3433093f751228ecb538508d907bc556967a47977780301848885",
+    "experiments/sim_v2.py": "d120f1aa095fa4878a9ee92f6fb9149c0cd307ad0b82bf94930ab7b4cdc7e248",
+    "experiments/learning_curve.py": "9933018518c0b87e442e610535085f375c537a530b43a39d93ca8d8b2787da9c",
+    "experiments/build_real_connectome.py": "7ecf0038ef2304e597c0a3b53b7960289dbc9a7674b550c522173a398f804af2"
+  },
+  "sim_v2": {
+    "reward": {
+      "version": "toy-physical-v0.1-unfitted",
+      "max_steps": 5,
+      "pulse_ml": 10.0,
+      "max_water_ml": 20.0,
+      "resample_s": 20.0,
+      "compare_s": 10.0,
+      "pulse_observe_s": 180.0,
+      "correct_reward": 5.0,
+      "wrong_reward": -10.0,
+      "inspection_cost": 1.2,
+      "timeout_cost": 1.5,
+      "time_cost_per_s": 0.001,
+      "water_cost_per_ml": 0.08
+    },
+    "rule_a": "REQUEST_INSPECTION masked while resample_count + compare_count + pulse_count == 0, unless estop or leak is active or no check action is allowed",
+    "patched_modules": [
+      "chamgap.contracts",
+      "chamgap.simulator",
+      "chamgap.collect",
+      "chamgap.evaluate",
+      "chamgap.policies"
+    ]
+  },
+  "real_mask": {
+    "path": "data/connectome/hemibrain_v121_caR_olf51.npy",
+    "sha256": "9f42b8bb8e8eb610b47c188a4f0d0bbf70d568da2b3603f7952aafa8bb7cd7e4",
+    "shape_kc_pn": [
+      1723,
+      51
+    ],
+    "edges": 9159,
+    "label": "HEMIBRAIN_V1.2.1_CA_R_OLF51_RULE_SELECTED_PENDING_REVIEW",
+    "review_status": "PENDING_TEAM_REVIEW",
+    "license_url": "https://creativecommons.org/licenses/by/4.0/"
+  },
+  "design": {
+    "models": {
+      "mlp_matched": {
+        "kind": "mlp",
+        "id": "P1",
+        "connectome": "NONE"
+      },
+      "fly_rewired": {
+        "kind": "fly",
+        "id": "P2",
+        "connectome": "REWIRED_FROM_HEMIBRAIN_NOT_BIOLOGICAL"
+      },
+      "fly_real": {
+        "kind": "fly",
+        "id": "P3"
+      },
+      "fly_random_fanin": {
+        "kind": "fly",
+        "id": "R",
+        "connectome": "RANDOM_FANIN_MATCHED_NOT_BIOLOGICAL"
+      }
+    },
+    "matched_mlp_hidden": 254,
+    "fly_params": 8375,
+    "target_optimizer_steps": 1500,
+    "batch": 64,
+    "replicas": 3,
+    "test": [
+      900001,
+      1000
+    ],
+    "validation": [
+      800001,
+      500
+    ],
+    "lr_grid": [
+      0.001,
+      0.003,
+      0.01
+    ],
+    "lr_choice": null,
+    "jobs": 36
+  },
+  "checks": {
+    "train_vs_heldout_seed_overlap": 0,
+    "train_reset_seeds_logged": 600,
+    "prefix_property": {
+      "171": true,
+      "174": true,
+      "177": true
+    },
+    "rule_a_and_reward_v2_verified_per_episode": true
+  },
+  "pools": {
+    "171": {
+      "pool": 200,
+      "subsets": {
+        "50": {
+          "rows": 137,
+          "groups": 50
+        },
+        "200": {
+          "rows": 515,
+          "groups": 199
+        }
+      },
+      "rewire": {
+        "requested_swaps": 91590,
+        "successful_swaps": 91590,
+        "edge_overlap_fraction": 0.1562397641663937
+      }
+    },
+    "174": {
+      "pool": 200,
+      "subsets": {
+        "50": {
+          "rows": 116,
+          "groups": 49
+        },
+        "200": {
+          "rows": 481,
+          "groups": 199
+        }
+      },
+      "rewire": {
+        "requested_swaps": 91590,
+        "successful_swaps": 91590,
+        "edge_overlap_fraction": 0.1444480838519489
+      }
+    },
+    "177": {
+      "pool": 200,
+      "subsets": {
+        "50": {
+          "rows": 127,
+          "groups": 50
+        },
+        "200": {
+          "rows": 495,
+          "groups": 199
+        }
+      },
+      "rewire": {
+        "requested_swaps": 91590,
+        "successful_swaps": 91590,
+        "edge_overlap_fraction": 0.15045310623430505
+      }
+    }
+  },
+  "tuning": {
+    "validation_mean_return": {
+      "mlp_matched": {
+        "0.001": 2.59882,
+        "0.003": 2.5933133333333336,
+        "0.01": 2.3897600000000003
+      },
+      "fly_rewired": {
+        "0.001": 2.539906666666667,
+        "0.003": 2.61746,
+        "0.01": 2.3734400000000004
+      },
+      "fly_real": {
+        "0.001": 2.6199133333333333,
+        "0.003": 2.561586666666667,
+        "0.01": 2.4941
+      },
+      "fly_random_fanin": {
+        "0.001": 2.573586666666667,
+        "0.003": 2.348566666666667,
+        "0.01": 2.6170266666666673
+      }
+    },
+    "lr": {
+      "mlp_matched": 0.001,
+      "fly_rewired": 0.003,
+      "fly_real": 0.001,
+      "fly_random_fanin": 0.01
+    }
+  }
+}

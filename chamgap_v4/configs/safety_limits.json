@@ -1,0 +1,12 @@
+{
+  "status": "DESIGN_TEMPLATE_NOT_LOADED_BY_STARTER",
+  "hardware_enabled": false,
+  "operator_approval_required": true,
+  "pulse_ml": 10.0,
+  "session_max_command_ml": 20.0,
+  "session_max_pulse_count": 2,
+  "absolute_motor_timeout_s": 60.0,
+  "on_boot": "MOTOR_OFF_NO_RESUME",
+  "on_unknown_interlock": "DENY_PULSE",
+  "notice": "Bench-review proposal only. Not a universal crop-safe dose. Firmware/server integration and review required."
+}

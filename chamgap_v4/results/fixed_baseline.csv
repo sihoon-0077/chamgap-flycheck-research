@@ -1,0 +1,3 @@
+model,n_episodes,seed,params,scope,auto_correct,auto_wrong,human,checks,elapsed_s,water_ml,timeout,n_test_events,domain,connectome,structure
+fixed_P0,0,0,0,all,0.769,0.111,0.12,2.965,87.88,2.91,0.0,1000,SIM_ONLY_UNCALIBRATED,DEMO_RANDOM_NOT_BIOLOGICAL,"fixed rule policy P0, no training"
+fixed_P0,0,0,0,excl_truth_unknown,0.900468,0.025761,0.07377,2.851288,88.688525,2.997658,0.0,854,SIM_ONLY_UNCALIBRATED,DEMO_RANDOM_NOT_BIOLOGICAL,"fixed rule policy P0, no training"

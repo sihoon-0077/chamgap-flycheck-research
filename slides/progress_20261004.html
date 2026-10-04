@@ -1,0 +1,568 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>참값 × FlyCheck 진행 보고</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&display=swap">
+<style>
+/* Layout: 16:9 slide frames on a cool gray ground, one slide per screen on desktop;
+   all text is sized from the slide width (cqi), so a frame reads the same at any size. */
+:root {
+  --bg: #eef1f4;
+  --surface: #ffffff;
+  --ink: #15191e;
+  --ink-2: #4a535e;
+  --muted: #7d8692;
+  --line: #d9dee4;
+  --accent: #1f6fd1;
+  --accent-weak: #e4eefb;
+  --font: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", system-ui, sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1215; --surface: #171b20; --ink: #eef1f4; --ink-2: #b6bec8; --muted: #8a939e;
+    --line: #2b3139; --accent: #5ea4f1; --accent-weak: #1a2a3e; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1215; --surface: #171b20; --ink: #eef1f4; --ink-2: #b6bec8; --muted: #8a939e;
+  --line: #2b3139; --accent: #5ea4f1; --accent-weak: #1a2a3e; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--font);
+  padding-inline: 16px; padding-block: 24px;
+  -webkit-font-smoothing: antialiased; font-variant-numeric: tabular-nums;
+  word-break: keep-all; overflow-wrap: break-word;   /* break Korean lines between words, not inside them */
+}
+.deck { display: grid; gap: 24px; justify-items: center; }
+.frame { width: 100%; display: grid; justify-items: center; }
+.slide {
+  container-type: inline-size;
+  width: min(100%, calc((100vh - 56px) * 16 / 9));
+  aspect-ratio: 16 / 9; max-width: 100%;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 4px; overflow: hidden;
+}
+.inner {
+  height: 100%; display: grid; grid-template-rows: auto 1fr auto; gap: 2.2cqi;
+  padding: 4.4cqi 5.4cqi 2.8cqi; font-size: 1.42cqi; line-height: 1.55;
+}
+.head { display: grid; gap: .55em; }
+.eyebrow { font-size: .78em; font-weight: 500; letter-spacing: .06em; color: var(--muted); }
+h1, h2 { margin: 0; text-wrap: balance; font-weight: 600; letter-spacing: -.01em; }
+h2 { font-size: 2.05em; line-height: 1.25; }
+h3 { margin: 0; font-size: 1.02em; font-weight: 600; }
+p { margin: 0; }
+ul { margin: 0; padding-left: 1.1em; display: grid; gap: .38em; }
+li::marker { color: var(--muted); }
+.lede { color: var(--ink-2); max-width: 62ch; }
+.body { min-height: 0; }
+.foot {
+  display: flex; justify-content: space-between; gap: 1em; flex-wrap: wrap;
+  font-size: .72em; color: var(--muted); border-top: 1px solid var(--line); padding-top: .8em;
+}
+.accent { color: var(--accent); }
+.muted { color: var(--muted); }
+.ink2 { color: var(--ink-2); }
+.small { font-size: .84em; }
+.cols { display: grid; gap: 3.2cqi; height: 100%; align-items: start; }
+.cols > * { min-width: 0; }
+.label { font-size: .78em; font-weight: 600; letter-spacing: .05em; color: var(--muted); margin-bottom: .55em; }
+
+/* tables */
+table { border-collapse: collapse; width: 100%; font-size: .9em; }
+th, td { text-align: left; padding: .42em .6em .42em 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-weight: 500; color: var(--muted); font-size: .9em; }
+td.num, th.num { text-align: right; padding-right: 0; }
+td.num { white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+
+/* slide 1 */
+.cover { display: grid; grid-template-rows: 1fr auto; gap: 3cqi; height: 100%; }
+.cover h1 { font-size: 3.6em; line-height: 1.1; }
+.cover .sub { font-size: 1.32em; color: var(--ink-2); margin-top: .5em; max-width: 30ch; }
+.summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2.6cqi; border-top: 2px solid var(--ink); padding-top: 1.6cqi; }
+.summary > div { min-width: 0; display: grid; gap: .35em; align-content: start; }
+.summary b { font-size: 1.12em; font-weight: 600; line-height: 1.4; }
+
+/* slide 2 flow */
+.flow { display: grid; grid-template-columns: 1fr auto 1fr auto 1.15fr auto 1.25fr; align-items: stretch; gap: .8em; }
+.step { border: 1px solid var(--line); border-radius: 4px; padding: .8em .9em; display: grid; gap: .2em; align-content: start; min-width: 0; }
+.step .k { font-size: .74em; font-weight: 600; letter-spacing: .06em; color: var(--muted); }
+.step b { font-weight: 600; }
+.step small { color: var(--ink-2); font-size: .82em; line-height: 1.45; }
+.step.on { border-color: var(--accent); background: var(--accent-weak); }
+.step.on .k { color: var(--accent); }
+.arrow { align-self: center; color: var(--muted); font-size: 1.2em; }
+.note { border-left: 2px solid var(--accent); padding-left: .8em; color: var(--ink-2); font-size: .9em; }
+
+/* slide 3 timeline */
+.day { display: grid; gap: .8em; align-content: start; }
+.day h3 { display: flex; gap: .6em; align-items: baseline; border-bottom: 2px solid var(--ink); padding-bottom: .4em; }
+.day h3 span { font-weight: 400; color: var(--muted); font-size: .86em; }
+.day li b { font-weight: 600; }
+.chips { display: flex; flex-wrap: wrap; gap: .5em; }
+.chip { font-size: .8em; border: 1px solid var(--line); border-radius: 999px; padding: .22em .75em; color: var(--ink-2); }
+
+/* charts */
+figure { margin: 0; display: grid; gap: .5em; min-width: 0; }
+figure svg { width: 100%; height: auto; display: block; overflow: visible; }
+figcaption { font-size: .78em; color: var(--muted); }
+.legend { display: flex; flex-wrap: wrap; gap: 1.2em; font-size: .78em; color: var(--ink-2); }
+.legend i { display: inline-block; width: 1.8em; height: 0; vertical-align: middle; margin-right: .45em; border-top: 3px solid var(--accent); }
+.legend i.ctrl { border-top: 2px solid var(--muted); }
+.legend i.base { border-top: 2px dashed var(--ink-2); }
+svg .grid { stroke: var(--line); stroke-width: 1; }
+svg .axis { stroke: var(--muted); stroke-width: 1; }
+svg text { font-family: var(--font); }
+svg .t { fill: var(--ink-2); font-size: 15px; }
+svg .t-m { fill: var(--muted); font-size: 14px; }
+svg .t-a { fill: var(--accent); font-size: 15px; font-weight: 600; }
+svg .t-h { fill: var(--ink); font-size: 15px; font-weight: 600; }
+svg .ctrl { fill: none; stroke: var(--muted); stroke-width: 1.8; stroke-linejoin: round; opacity: .85; }
+svg .p3 { fill: none; stroke: var(--accent); stroke-width: 3.2; stroke-linejoin: round; stroke-linecap: round; }
+svg .dot { fill: var(--accent); stroke: var(--surface); stroke-width: 1.6; }
+svg .base { stroke: var(--ink-2); stroke-width: 1.4; stroke-dasharray: 5 4; }
+svg .band { fill: var(--accent-weak); }
+svg .ci-m { stroke: var(--muted); stroke-width: 2.4; stroke-linecap: round; }
+svg .pt-m { fill: var(--muted); stroke: var(--surface); stroke-width: 1.5; }
+svg .ci-a { stroke: var(--accent); stroke-width: 3.2; stroke-linecap: round; }
+svg .pt-a { fill: var(--accent); stroke: var(--surface); stroke-width: 1.5; }
+svg .zero { stroke: var(--ink-2); stroke-width: 1; }
+
+.metric td:first-child { color: var(--ink-2); }
+.metric td.num b { font-weight: 600; }
+.quote { border-left: 2px solid var(--accent); padding: .2em 0 .2em .9em; font-weight: 500; }
+
+/* slide 6 cards */
+.card { border: 1px solid var(--line); border-radius: 4px; padding: 1.1em 1.1em 1em; display: grid; gap: .7em; align-content: start; min-width: 0; }
+.card.first { border-color: var(--accent); }
+.card .top { display: flex; align-items: baseline; gap: .6em; }
+.card .n { font-size: 1.5em; font-weight: 700; color: var(--accent); line-height: 1; }
+.card h3 { font-size: 1.05em; }
+.tag { display: inline-block; font-size: .74em; font-weight: 600; color: var(--accent); border: 1px solid var(--accent); border-radius: 999px; padding: .05em .6em; }
+.who { font-size: .76em; color: var(--muted); }
+.card ul { font-size: .9em; }
+.strip { display: flex; flex-wrap: wrap; gap: .4em 1.6em; font-size: .86em; color: var(--ink-2); border-top: 1px solid var(--line); padding-top: .8em; }
+.strip b { color: var(--ink); font-weight: 600; }
+
+/* slide 7 */
+.sched { display: grid; gap: 0; }
+.sched > div { display: grid; grid-template-columns: 8.2em 1fr; gap: 1em; padding: .55em 0; border-bottom: 1px solid var(--line); }
+.sched > div:last-child { border-bottom: 0; }
+.sched time { font-weight: 600; color: var(--ink); }
+.sched .end time { color: var(--accent); }
+.decide { display: grid; gap: .7em; counter-reset: d; }
+.decide > div { display: grid; grid-template-columns: 1.6em 1fr; gap: .5em; }
+.decide > div::before { counter-increment: d; content: counter(d); font-weight: 700; color: var(--accent); }
+.decide b { font-weight: 600; }
+
+/* navigation */
+.nav {
+  position: fixed; right: 16px; bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  display: flex; align-items: center; gap: .4em; padding: .3em; font-size: 13px;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 999px; color: var(--ink-2);
+}
+.nav button {
+  font: inherit; color: var(--ink); background: transparent; border: 0; border-radius: 999px;
+  width: 2.2em; height: 2.2em; cursor: pointer;
+}
+.nav button:hover { background: var(--bg); }
+.nav button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+#counter { min-width: 3.4em; text-align: center; }
+
+@media (min-width: 761px) and (min-height: 480px) {
+  html { scroll-snap-type: y mandatory; }
+  body { padding-block: 0; }
+  .deck { gap: 0; }
+  .frame { min-height: 100vh; align-content: center; scroll-snap-align: center; }
+}
+@media (max-width: 760px) {
+  .slide { aspect-ratio: auto; width: 100%; }
+  .inner { font-size: 15px; padding: 24px 20px 18px; gap: 18px; }
+  .cols, .summary { grid-template-columns: 1fr !important; }
+  .cover h1 { font-size: 2.4em; }
+  .flow { grid-template-columns: 1fr; }
+  .arrow { transform: rotate(90deg); justify-self: start; padding-left: .6em; }
+  .sched > div { grid-template-columns: 1fr; gap: .2em; }
+}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+@media print {
+  @page { size: 13.333in 7.5in; margin: 0; }
+  html { scroll-snap-type: none; }
+  body { padding: 0; background: var(--surface); }
+  .deck { gap: 0; }
+  .frame { min-height: auto; break-after: page; }
+  .slide { width: 13.333in; height: 7.5in; border: 0; border-radius: 0; }
+  .nav { display: none; }
+}
+</style>
+</head>
+<body>
+<main class="deck">
+
+<!-- 1. Cover -->
+<div class="frame" id="s1"><section class="slide" aria-label="1. 표지"><div class="inner">
+  <div class="eyebrow">캡스톤디자인 · 진행 보고 · 2026년 10월 4일</div>
+  <div class="cover">
+    <div style="align-self:center">
+      <h1>참값 × FlyCheck</h1>
+      <p class="sub">센서값을 믿기 전에 먼저 확인하는 스마트팜 데이터 신뢰 계층</p>
+    </div>
+    <div class="summary">
+      <div><span class="label">지금까지 한 일</span><b>연구 코어 복원·검증, 실제 초파리 커넥톰으로 학습 실험 800회</b></div>
+      <div><span class="label">알게 된 것</span><b>학습한 점검 선택은 오진을 절반 이하로 줄였다. 초파리 연결 위치의 이점은 없었다.</b></div>
+      <div><span class="label">이제 할 일</span><b>실측 시작, 차세대통신 연관성 강화, 초파리 역할 재정의</b></div>
+    </div>
+  </div>
+  <div class="foot"><span>모든 수치는 보정 전 가상환경 결과다 (domain = SIM_ONLY_UNCALIBRATED). 실물 성능이 아니다.</span><span>1 / 7</span></div>
+</div></section></div>
+
+<!-- 2. What we build -->
+<div class="frame" id="s2"><section class="slide" aria-label="2. 무엇을 만드나"><div class="inner">
+  <div class="head">
+    <div class="eyebrow">무엇을 만드나</div>
+    <h2>센서가 이상해 보일 때, 다음에 무엇을 확인할까</h2>
+    <p class="lede">토양수분 센서가 한 값에 멈추거나(고착) 낮게 읽거나(편향) 급수관이 막히면, 자동 관수는 틀린 결정을 반복한다. 참값은 값을 쓰기 전에 확인하고, 증거가 부족하면 FlyCheck가 다음 점검 하나를 고른다.</p>
+  </div>
+  <div class="body" style="display:grid; gap:2.2cqi; align-content:start">
+    <div class="flow">
+      <div class="step"><span class="k">센서</span><b>측정</b><small>구역마다 토양수분·온습도 2개씩, 로드셀 1개</small></div>
+      <div class="arrow" aria-hidden="true">→</div>
+      <div class="step"><span class="k">참값</span><b>검증</b><small>범위·급변·고착·쌍 비교·급수 반응</small></div>
+      <div class="arrow" aria-hidden="true">→</div>
+      <div class="step on"><span class="k">FlyCheck</span><b>다음 점검 선택</b><small>증거가 부족할 때만 작동</small></div>
+      <div class="arrow" aria-hidden="true">→</div>
+      <div class="step"><span class="k">판정</span><b>정상 · 건조 · 센서 이상 · 공급 이상 · 미확정</b></div>
+    </div>
+    <div class="cols" style="grid-template-columns: 1.15fr 1fr">
+      <div>
+        <div class="label">FlyCheck가 고르는 점검 4가지</div>
+        <table>
+          <thead><tr><th>점검</th><th>얻는 증거</th><th class="num">비용</th></tr></thead>
+          <tbody>
+            <tr><td>재측정</td><td>순간 잡음인가</td><td class="num">20초</td></tr>
+            <tr><td>비교 측정</td><td>대상 센서만의 문제인가</td><td class="num">10초</td></tr>
+            <tr><td>시험 급수</td><td>물이 도착하고 센서가 반응하는가</td><td class="num">10 mL · 180초</td></tr>
+            <tr><td>사람 점검 요청</td><td>사람이 현장에서 직접 확인</td><td class="num">자동 해결 아님</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="display:grid; gap:1em">
+        <div>
+          <div class="label">점수판 (보상 v2, 10월 4일 결정)</div>
+          <table>
+            <tbody>
+              <tr><td>자동 판정이 맞음</td><td class="num">+5</td></tr>
+              <tr><td>자동 판정이 틀림 (오진)</td><td class="num">−10</td></tr>
+              <tr><td>사람 점검 요청</td><td class="num">−1.2</td></tr>
+              <tr><td>물 1 mL / 시간 1초</td><td class="num">−0.08 / −0.001</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="note">규칙 A: 검사를 한 번 이상 한 뒤에만 사람에게 넘긴다. 누수·비상정지는 예외.</p>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>모델 출력은 고장 확률이 아니라 각 점검의 기대 점수다 (설계서 4.3절)</span><span>2 / 7</span></div>
+</div></section></div>
+
+<!-- 3. What we did -->
+<div class="frame" id="s3"><section class="slide" aria-label="3. 지금까지 한 일"><div class="inner">
+  <div class="head">
+    <div class="eyebrow">지금까지 한 일</div>
+    <h2>설계서 코드를 되살리고, 실제 초파리 연결로 실험까지 마쳤다</h2>
+  </div>
+  <div class="body" style="display:grid; gap:2cqi; align-content:start">
+    <div class="cols" style="grid-template-columns: 1fr 1fr">
+      <div class="day">
+        <h3>10월 2일 <span>금 · 기반 다지기</span></h3>
+        <ul>
+          <li><b>코드 복원:</b> 설계서 부록에서 파일 52개 복원, 해시 52/52 일치, 테스트 46개 통과</li>
+          <li><b>첫 파이프라인:</b> 가상 사건 생성 → MLP·초파리형 학습 → 90사건 평가</li>
+          <li><b>알려진 문제 확인:</b> 원인을 알 수 없는 사건이 "센서 고장"으로 오진됨. 고치지 않고 따로 보고하기로 결정</li>
+          <li><b>학습곡선 v1:</b> 난수 연결로 모델 4종 × 데이터 6단계 × 시드 5개 = 120회</li>
+        </ul>
+      </div>
+      <div class="day">
+        <h3>10월 4일 <span>일 · 실제 연결 실험</span></h3>
+        <ul>
+          <li><b>기준 결정:</b> 보상 v2(물 우선)와 규칙 A(검사 1번 뒤에만 사람 인계)</li>
+          <li><b>실제 커넥톰:</b> neuPrint hemibrain에서 후각 사구체 51개 × KC 1,723개 연결 추출 (CC BY 4.0)</li>
+          <li><b>실험:</b> 사전 계획서로 판정 규칙 고정 → 학습곡선 v2 480회 → 데이터 200개 확인 실험 320회</li>
+          <li><b>공개:</b> 결과 페이지 Vercel 배포, 부품·연결 페이지 추가</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <div class="label">결과를 믿을 수 있게 만든 장치</div>
+      <div class="chips">
+        <span class="chip">부록 52개 파일 해시 일치</span>
+        <span class="chip">테스트 46개 통과</span>
+        <span class="chip">학습·시험 시드 겹침 0</span>
+        <span class="chip">같은 조건 재실행 시 결과 동일</span>
+        <span class="chip">사전 계획서 해시 기록</span>
+        <span class="chip">모든 작업을 research.md에 기록</span>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>설계서 24.2절 기준: 1주차 게이트(코드 실행) 통과. 5–6주차 가상 실험을 먼저 끝냈고, 2–4주차 실측 게이트는 아직 시작 전</span><span>3 / 7</span></div>
+</div></section></div>
+
+<!-- 4. Result 1: learning works -->
+<div class="frame" id="s4"><section class="slide" aria-label="4. 결과 1 학습 효과"><div class="inner">
+  <div class="head">
+    <div class="eyebrow">결과 ① 학습한 점검 선택 (가설 H1)</div>
+    <h2>학습 모델은 데이터 200개부터 고정 규칙을 이긴다</h2>
+  </div>
+  <div class="cols" style="grid-template-columns: 1.25fr 1fr">
+    <figure>
+      <svg viewBox="0 0 640 336" role="img" aria-label="학습 사건 수에 따른 사건당 평균 보상. 네 모델이 거의 겹치며 데이터 200개부터 P0 기준선 2.25를 넘는다.">
+        <text class="t-m" x="70" y="22">사건당 평균 보상</text>
+        <line class="grid" x1="70" y1="40" x2="610" y2="40"/>
+        <line class="grid" x1="70" y1="92" x2="610" y2="92"/>
+        <line class="grid" x1="70" y1="144" x2="610" y2="144"/>
+        <line class="grid" x1="70" y1="196" x2="610" y2="196"/>
+        <line class="grid" x1="70" y1="248" x2="610" y2="248"/>
+        <line class="axis" x1="70" y1="300" x2="610" y2="300"/>
+        <text class="t-m" x="60" y="44" text-anchor="end">3.0</text>
+        <text class="t-m" x="60" y="96" text-anchor="end">2.8</text>
+        <text class="t-m" x="60" y="148" text-anchor="end">2.6</text>
+        <text class="t-m" x="60" y="200" text-anchor="end">2.4</text>
+        <text class="t-m" x="60" y="252" text-anchor="end">2.2</text>
+        <text class="t-m" x="60" y="304" text-anchor="end">2.0</text>
+        <text class="t-m" x="70" y="322" text-anchor="middle">50</text>
+        <text class="t-m" x="171.5" y="322" text-anchor="middle">100</text>
+        <text class="t-m" x="272.9" y="322" text-anchor="middle">200</text>
+        <text class="t-m" x="407.1" y="322" text-anchor="middle">500</text>
+        <text class="t-m" x="508.6" y="322" text-anchor="middle">1,000</text>
+        <text class="t-m" x="610" y="322" text-anchor="middle">2,000</text>
+        <line class="base" x1="70" y1="235" x2="610" y2="235"/>
+        <text class="t" x="606" y="254" text-anchor="end">P0 고정 규칙 2.25</text>
+        <polyline class="ctrl" points="70,276.1 171.5,206.4 272.9,165.1 407.1,88.9 508.6,57.7 610,66.3"/>
+        <polyline class="ctrl" points="70,271.7 171.5,217.1 272.9,144.3 407.1,80.3 508.6,65.7 610,66.5"/>
+        <polyline class="ctrl" points="70,275.3 171.5,216.8 272.9,165.8 407.1,86.8 508.6,67.3 610,74.1"/>
+        <polyline class="p3" points="70,274.8 171.5,218.1 272.9,150.8 407.1,96.7 508.6,71.2 610,68.6"/>
+        <circle class="dot" cx="70" cy="274.8" r="4.6"/>
+        <circle class="dot" cx="171.5" cy="218.1" r="4.6"/>
+        <circle class="dot" cx="272.9" cy="150.8" r="4.6"/>
+        <circle class="dot" cx="407.1" cy="96.7" r="4.6"/>
+        <circle class="dot" cx="508.6" cy="71.2" r="4.6"/>
+        <circle class="dot" cx="610" cy="68.6" r="4.6"/>
+        <text class="t-a" x="258" y="136" text-anchor="end">P3 실제 연결</text>
+        <text class="t-m" x="418" y="122">대조군 3개 (회색)</text>
+      </svg>
+      <div class="legend"><span><i></i>P3 실제 hemibrain 연결</span><span><i class="ctrl"></i>P2 재배선 · P1 MLP · R 무작위</span><span><i class="base"></i>P0 고정 규칙</span></div>
+      <figcaption>가로축: 학습에 쓴 가상 사건 수 (로그 축). 점 = 시드 평균 (데이터 200개 이하 30개, 500개 이상 10개). 시험 사건 1,000개 공통.</figcaption>
+    </figure>
+    <div style="display:grid; gap:1.2em; align-content:start">
+      <table class="metric">
+        <thead><tr><th></th><th class="num">P0 고정 규칙</th><th class="num">학습 모델 (2,000개)</th></tr></thead>
+        <tbody>
+          <tr><td>사건당 보상</td><td class="num">2.25</td><td class="num"><b class="accent">2.87–2.90</b></td></tr>
+          <tr><td>자동 오진률</td><td class="num">11.1%</td><td class="num"><b class="accent">3.7–4.4%</b></td></tr>
+          <tr><td>사람 인계율</td><td class="num">12.0%</td><td class="num">18.0–19.2%</td></tr>
+          <tr><td>구별 불가 사건 인계율</td><td class="num">39%</td><td class="num">83–89%</td></tr>
+          <tr><td>사건당 물</td><td class="num">2.91 mL</td><td class="num">2.35–2.59 mL</td></tr>
+        </tbody>
+      </table>
+      <ul class="small ink2">
+        <li>데이터 50개에서는 네 모델 모두 P0보다 낮다 (2.09–2.11).</li>
+        <li>오진 감소의 대부분은 구별할 수 없는 사건을 사람에게 넘긴 데서 나온다. 구별 가능한 사건만 보면 오진률은 P0와 비슷한 2% 안팎이다.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="foot"><span>가상환경 결과 (SIM_ONLY_UNCALIBRATED) · 범위는 네 모델의 최소–최대</span><span>4 / 7</span></div>
+</div></section></div>
+
+<!-- 5. Result 2: connectome -->
+<div class="frame" id="s5"><section class="slide" aria-label="5. 결과 2 초파리 연결"><div class="inner">
+  <div class="head">
+    <div class="eyebrow">결과 ② 실제 초파리 연결 (가설 H2)</div>
+    <h2>실제 초파리 연결의 이점은 관찰되지 않았다</h2>
+  </div>
+  <div class="cols" style="grid-template-columns: 1.35fr 1fr">
+    <figure>
+      <svg viewBox="0 0 760 340" role="img" aria-label="P3 실제 연결과 비교 모델의 보상 차이와 신뢰구간. 본 실험 6개는 구간이 넓어 판정 불가, 확인 실험 2개는 ±0.10 동등 범위 안.">
+        <rect class="band" x="300" y="22" width="200" height="262"/>
+        <text class="t-m" x="400" y="14" text-anchor="middle">동등 범위 ±0.10</text>
+        <line class="zero" x1="400" y1="22" x2="400" y2="284"/>
+        <text class="t-h" x="8" y="40">본 실험 · 시드 30개 · 99.17% 구간</text>
+        <text class="t" x="8" y="64">P3 − P2 · n=50</text>
+        <line class="ci-m" x1="265" y1="60" x2="537" y2="60"/><circle class="pt-m" cx="405" cy="60" r="5"/>
+        <text class="t-m" x="620" y="64">판정 불가</text>
+        <text class="t" x="8" y="88">P3 − P2 · n=100</text>
+        <line class="ci-m" x1="237" y1="84" x2="461" y2="84"/><circle class="pt-m" cx="355" cy="84" r="5"/>
+        <text class="t-m" x="620" y="88">판정 불가</text>
+        <text class="t" x="8" y="112">P3 − P2 · n=200</text>
+        <line class="ci-m" x1="396" y1="108" x2="526" y2="108"/><circle class="pt-m" cx="455" cy="108" r="5"/>
+        <text class="t-m" x="620" y="112">판정 불가</text>
+        <text class="t" x="8" y="136">P3 − P1 · n=50</text>
+        <line class="ci-m" x1="253" y1="132" x2="510" y2="132"/><circle class="pt-m" cx="388" cy="132" r="5"/>
+        <text class="t-m" x="620" y="136">판정 불가</text>
+        <text class="t" x="8" y="160">P3 − P1 · n=100</text>
+        <line class="ci-m" x1="258" y1="156" x2="516" y2="156"/><circle class="pt-m" cx="396" cy="156" r="5"/>
+        <text class="t-m" x="620" y="160">판정 불가</text>
+        <text class="t" x="8" y="184">P3 − P1 · n=200</text>
+        <line class="ci-m" x1="279" y1="180" x2="470" y2="180"/><circle class="pt-m" cx="375" cy="180" r="5"/>
+        <text class="t-m" x="620" y="184">판정 불가</text>
+        <text class="t-h" x="8" y="220">확인 실험 · 새 시드 80개 · 97.5% 구간</text>
+        <text class="t" x="8" y="244">P3 − P2 · n=200</text>
+        <line class="ci-a" x1="379" y1="240" x2="462" y2="240"/><circle class="pt-a" cx="419" cy="240" r="5.6"/>
+        <text class="t-a" x="620" y="244">동등</text>
+        <text class="t" x="8" y="268">P3 − P1 · n=200</text>
+        <line class="ci-a" x1="329" y1="264" x2="427" y2="264"/><circle class="pt-a" cx="377" cy="264" r="5.6"/>
+        <text class="t-a" x="620" y="268">동등</text>
+        <line class="axis" x1="200" y1="284" x2="600" y2="284"/>
+        <text class="t-m" x="200" y="302" text-anchor="middle">−0.20</text>
+        <text class="t-m" x="300" y="302" text-anchor="middle">−0.10</text>
+        <text class="t-m" x="400" y="302" text-anchor="middle">0</text>
+        <text class="t-m" x="500" y="302" text-anchor="middle">+0.10</text>
+        <text class="t-m" x="600" y="302" text-anchor="middle">+0.20</text>
+        <text class="t-m" x="400" y="326" text-anchor="middle">사건당 보상 차이 (오른쪽일수록 실제 연결이 높음)</text>
+      </svg>
+      <figcaption>점 = 같은 시드끼리 짝지은 평균 차이, 선 = bootstrap 신뢰구간. P2 = 같은 차수로 섞은 재배선, P1 = 같은 크기 MLP (학습 파라미터 약 8,400개).</figcaption>
+    </figure>
+    <div style="display:grid; gap:1.1em; align-content:start">
+      <ul>
+        <li>판정 규칙은 결과를 보기 전에 <b>사전 계획서</b>로 고정했다.</li>
+        <li>데이터 50·100개: 시드 30개로는 구간이 넓어 <b>판정 불가</b>.</li>
+        <li>데이터 200개: 결과를 보지 않은 <b>새 시드 80개</b>로 다시 확인했더니, 실제 연결 = 재배선 = MLP (±0.10).</li>
+      </ul>
+      <div>
+        <div class="label">발표 문장</div>
+        <p class="quote">이 시뮬레이터에서는 실제 초파리 연결 위치의 이점이 ±0.10 안에서 관찰되지 않았다.</p>
+      </div>
+      <p class="small ink2">쓰지 않는 문장: "초파리 구조가 우수하다", "열등하다". 센서 입력을 PN으로 바꾸는 어댑터가 학습되므로, 연결 위치의 차이를 어댑터가 흡수했을 수 있다.</p>
+    </div>
+  </div>
+  <div class="foot"><span>가상환경 결과 (SIM_ONLY_UNCALIBRATED) · 실제 연결 행렬은 팀 검토(D) 전 · hemibrain v1.2.1, Scheffer et al. 2020</span><span>5 / 7</span></div>
+</div></section></div>
+
+<!-- 6. What is left -->
+<div class="frame" id="s6"><section class="slide" aria-label="6. 남은 과제"><div class="inner">
+  <div class="head">
+    <div class="eyebrow">참값을 완성하려면</div>
+    <h2>남은 일: 실측, 통신 융합, 초파리의 새 역할</h2>
+  </div>
+  <div class="body" style="display:grid; gap:1.6cqi; align-content:start">
+    <div class="cols" style="grid-template-columns: repeat(3, 1fr)">
+      <div class="card first">
+        <div class="top"><span class="n">1</span><h3>실측과 시뮬레이터 보정</h3></div>
+        <span class="who">담당 B · E · A</span>
+        <ul>
+          <li>1노드 계측: 센서 반복성, 대상·비교 편차, 펌프 시간-질량(독립 저울)</li>
+          <li>고장 재현: 소프트웨어 고착, 튜브 클램프</li>
+          <li>측정값으로 가상환경을 보정한 뒤, 학습에 안 쓴 실물 세션으로 최종 평가</li>
+          <li>같이 고칠 것: 온습도 관측이 상수, 표본 개수 기반 창 (27.6절)</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="top"><span class="n">2</span><h3>차세대통신 연관성</h3></div>
+        <span><span class="tag">사업단 P/F 필수 항목</span></span>
+        <ul>
+          <li>이웃 노드 비교 검증: 옆 구역 센서를 네트워크로 받아 비교 측정 → 센서 비용 절감</li>
+          <li>이벤트 기반 전송: 의심될 때만 근거와 함께 전송 → 전송량·배터리 비교</li>
+          <li>통신이 끊겨도 노드가 스스로 급수를 멈추는 장면을 시연</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="top"><span class="n">3</span><h3>초파리의 역할 재정의</h3></div>
+        <span class="who">담당 D · 가상 시험 1–2일</span>
+        <ul>
+          <li>연결과 어댑터는 고정하고, 현장에서는 출력층만 학습</li>
+          <li>시험: 성능 유지? 현장이 바뀔 때 덜 잊는가? 업데이트가 작은가?</li>
+          <li>근거: 초파리의 희소 표현이 망각을 줄인다 (Shen·Dasgupta·Navlakha 2021)</li>
+          <li>주의: 출력층만 보내도 통신량은 18%만 준다. 이점은 희소성에서 나와야 한다</li>
+        </ul>
+      </div>
+    </div>
+    <div class="strip">
+      <span><b>정리</b></span>
+      <span>D: 뉴런 선택 규칙 검토 후 "검토 완료" 라벨로 재저장</span>
+      <span>결과 페이지에 v2 결과 반영</span>
+      <span>기대효과를 금액으로 (물 · 인건비 · 통신량)</span>
+    </div>
+  </div>
+  <div class="foot"><span>번호 = 우선순위. 1번은 시간이 가장 오래 걸리고, 어느 심사에서든 가장 강한 증거다</span><span>6 / 7</span></div>
+</div></section></div>
+
+<!-- 7. Schedule and decisions -->
+<div class="frame" id="s7"><section class="slide" aria-label="7. 일정과 결정"><div class="inner">
+  <div class="head">
+    <div class="eyebrow">일정과 결정</div>
+    <h2>보고서까지 10주, 이번 주에 정할 것</h2>
+  </div>
+  <div class="cols" style="grid-template-columns: 1.3fr 1fr">
+    <div>
+      <div class="label">제안 일정</div>
+      <div class="sched">
+        <div><time>10/5 – 10/18</time><span>1노드 계측 시작 · 초파리 출력층 학습 시험 · 이웃 노드 검증 시뮬레이션</span></div>
+        <div><time>10/19 – 11/1</time><span>3노드 복제와 고장 재현 · 시뮬레이터 보정 · 이벤트 기반 전송 구현</span></div>
+        <div><time>11/2 – 11/15</time><span>모델·규칙·안전 한도 동결 · 실물 옆에서 추천만 하는 비교(shadow)</span></div>
+        <div><time>11/16 – 11/29</time><span>실물 정책 시험 (학습에 안 쓴 세션, 순서 무작위)</span></div>
+        <div class="end"><time>11/30 – 12/11</time><span>분석 · 시연 영상 · 결과보고서 (마감 12/11)</span></div>
+      </div>
+    </div>
+    <div>
+      <div class="label">이번 주에 정할 것</div>
+      <div class="decide">
+        <div><span><b>실측 장소·일정과 1차 구매 확정</b><br><span class="muted small">B · 가장 먼저</span></span></div>
+        <div><span><b>이웃 노드 비교 검증을 시스템에 넣을지</b><br><span class="muted small">전원 · 통신 연관성의 핵심</span></span></div>
+        <div><span><b>초파리 출력층 학습 시험 진행</b><br><span class="muted small">D · 실패하면 "정확도·비용 모두 이점 없음"으로 정리</span></span></div>
+        <div><span><b>사업단 심사 기준과 제출물 확인</b><br><span class="muted small">A · 마감일 12/11은 사업단 공고 기준, 우리 일정 확인 필요</span></span></div>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>자세한 수치와 과정: research.md · 결과 파일: chamgap_v4/results/connectome_v1/</span><span>7 / 7</span></div>
+</div></section></div>
+
+</main>
+
+<nav class="nav" aria-label="슬라이드 이동">
+  <button id="prev" type="button" aria-label="이전 슬라이드">←</button>
+  <span id="counter" aria-live="polite">1 / 7</span>
+  <button id="next" type="button" aria-label="다음 슬라이드">→</button>
+</nav>
+
+<script>
+(function () {
+  var frames = Array.prototype.slice.call(document.querySelectorAll('.frame'));
+  var counter = document.getElementById('counter');
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function current() {
+    var best = 0, bestDist = Infinity;
+    frames.forEach(function (f, i) {
+      var r = f.getBoundingClientRect();
+      var d = Math.abs(r.top + r.height / 2 - window.innerHeight / 2);
+      if (d < bestDist) { bestDist = d; best = i; }
+    });
+    return best;
+  }
+  function go(i) {
+    i = Math.max(0, Math.min(frames.length - 1, i));
+    frames[i].scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' });
+  }
+  function update() { counter.textContent = (current() + 1) + ' / ' + frames.length; }
+  window.addEventListener('scroll', function () { window.requestAnimationFrame(update); }, { passive: true });
+  window.addEventListener('resize', update);
+  window.addEventListener('keydown', function (e) {
+    var k = e.key;
+    if (k === 'ArrowRight' || k === 'ArrowDown' || k === 'PageDown' || k === ' ') { e.preventDefault(); go(current() + 1); }
+    else if (k === 'ArrowLeft' || k === 'ArrowUp' || k === 'PageUp') { e.preventDefault(); go(current() - 1); }
+    else if (k === 'Home') { e.preventDefault(); go(0); }
+    else if (k === 'End') { e.preventDefault(); go(frames.length - 1); }
+  });
+  document.getElementById('prev').addEventListener('click', function () { go(current() - 1); });
+  document.getElementById('next').addEventListener('click', function () { go(current() + 1); });
+  update();
+})();
+</script>
+</body>
+</html>

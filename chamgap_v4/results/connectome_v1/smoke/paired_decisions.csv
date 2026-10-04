@@ -1,0 +1,11 @@
+comparison,a,b,n_episodes,n_seeds,mean_diff,ci_level,ci_lo,ci_hi,seeds_positive,decision,primary
+P3 - P2,fly_real,fly_rewired,50,2,-0.04788,0.991667,-0.07983,-0.01593,0,"P3 낮음, 차이 0.10 미만",True
+P3 - P2,fly_real,fly_rewired,200,2,0.03647,0.991667,0.00174,0.0712,2,"P3 높음, 차이 0.10 미만",True
+P3 - P1,fly_real,mlp_matched,50,2,-0.1833,0.991667,-0.24614,-0.12046,0,P3 낮음,True
+P3 - P1,fly_real,mlp_matched,200,2,0.08649,0.991667,-0.16084,0.33382,1,판정 불가,True
+P2 - R,fly_rewired,fly_random_fanin,50,2,0.05238,0.95,0.05183,0.05293,2,"P2 높음, 차이 0.10 미만",False
+P2 - R,fly_rewired,fly_random_fanin,200,2,-0.04433,0.95,-0.15837,0.06971,1,판정 불가,False
+P1 - P0,mlp_matched,fixed_P0,50,2,0.16398,0.95,0.10786,0.2201,2,P1 높음,False
+P1 - P0,mlp_matched,fixed_P0,200,2,0.21187,0.95,-0.02754,0.45128,1,판정 불가,False
+P3 - P0,fly_real,fixed_P0,50,2,-0.01932,0.95,-0.13828,0.09964,1,판정 불가,False
+P3 - P0,fly_real,fixed_P0,200,2,0.29836,0.95,0.29044,0.30628,2,P3 높음,False

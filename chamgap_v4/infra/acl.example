@@ -1,0 +1,17 @@
+# Provision N2/N3 analogously, with separate credentials. Never reuse them in UI.
+user node_N1
+ topic write chamgap/v4/Z1/N1/telemetry
+ topic write chamgap/v4/Z1/N1/status
+ topic write chamgap/v4/Z1/N1/ack
+ topic write chamgap/v4/Z1/N1/result
+ topic read chamgap/v4/Z1/N1/cmd
+user readonly_collector
+ topic read chamgap/v4/+/+/telemetry
+ topic read chamgap/v4/+/+/status
+ topic read chamgap/v4/+/+/ack
+ topic read chamgap/v4/+/+/result
+user supervised_executor
+ topic write chamgap/v4/+/+/cmd
+ topic read chamgap/v4/+/+/status
+ topic read chamgap/v4/+/+/ack
+ topic read chamgap/v4/+/+/result

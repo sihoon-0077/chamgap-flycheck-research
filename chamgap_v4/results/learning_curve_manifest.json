@@ -1,0 +1,242 @@
+{
+  "domain": "SIM_ONLY_UNCALIBRATED",
+  "connectome": "DEMO_RANDOM_NOT_BIOLOGICAL",
+  "claim_scope": "pipeline/learning-curve behaviour in an uncalibrated toy simulator only",
+  "created_unix": 1790931515.3464956,
+  "wall_seconds": 123.9,
+  "python": "3.12.10",
+  "torch": "2.14.1+cpu",
+  "numpy": "2.5.3",
+  "code_sha256": {
+    "chamgap/__init__.py": "eedc6a1bda105d1e9b4937085e18923b50e6164efa63fdaeaada216303afba70",
+    "chamgap/collect.py": "4d02a2e7e56a8a77a16e28d16be7cb1138c9a7398d81568b10340b483aaa3109",
+    "chamgap/connectome.py": "ca7041d247d150580e3fb91dbfb904b1d1f60c40764b420caa36195f1a3fed90",
+    "chamgap/contracts.py": "00ae78eb4b1472cfcfa57c9654f97ac382a4084f2f89815b72f7a17655dee3f9",
+    "chamgap/evaluate.py": "60a47d2c2bfe4eb6be720e853a3a98fc6101b112491cbb0a4ef566395ff11737",
+    "chamgap/features.py": "8c280f23274944a7c9e193ab8875271617e05428eaabe9d395d5b9352befd687",
+    "chamgap/gym_adapter.py": "f4ad6489bedf110e00866f8c85174c64a67588faf44369e23fc69671f48e68cc",
+    "chamgap/model.py": "8a3d0aeb21a4749c4da9227c12cdff6936037b0c662617027f8fe1a21c5bcac1",
+    "chamgap/policies.py": "f2f65938f505185baf09d457a85e592f90bc4c28bebc3eb168f6113de446aa9e",
+    "chamgap/safety.py": "1979aa351b02cff2a0f7d16c03d3c321133bfdd8c19922bf47efdce30754783c",
+    "chamgap/simulator.py": "c01e17b44caefaeb8a9549584f2b162ad7b6b3641331e4fb5ddac26b40c14002",
+    "chamgap/train.py": "da5f8680745e729c2760fe6b525721a68ffd0ba1c193ccdbafc51ee0bad1477a",
+    "chamgap/validator.py": "6d3243f67499f71a38db66d4b42a7a20241f3f747f74da140a1c0346282815b1",
+    "experiments/learning_curve.py": "9933018518c0b87e442e610535085f375c537a530b43a39d93ca8d8b2787da9c"
+  },
+  "design": {
+    "sizes": [
+      50,
+      100,
+      200,
+      500,
+      1000,
+      2000
+    ],
+    "seeds": [
+      17,
+      29,
+      43,
+      61,
+      79
+    ],
+    "replicas": 3,
+    "n_episodes_meaning": "episodes requested from collect(); groups resolved at reset are dropped; train() then splits groups 70/15/15",
+    "target_optimizer_steps": 1500,
+    "batch": 64,
+    "checkpoint_selection": "chamgap.train best validation epoch",
+    "test_seeds": [
+      900001,
+      901000
+    ],
+    "models": {
+      "mlp_h64": {
+        "kind": "mlp",
+        "hidden": 64,
+        "structure": "dense MLP 28-64-4, no connectome"
+      },
+      "mlp_h44_matched": {
+        "kind": "mlp",
+        "hidden": 44,
+        "structure": "dense MLP 28-44-4, no connectome, params matched to fly"
+      },
+      "fly_random": {
+        "kind": "fly",
+        "structure": "demo random PN-KC mask (mask seed 11)"
+      },
+      "fly_rewired": {
+        "kind": "fly",
+        "structure": "degree-preserving rewire of the demo mask (rewire seed = run seed)"
+      }
+    }
+  },
+  "checks": {
+    "train_test_seed_overlap": 0,
+    "train_reset_seeds_logged": 10000,
+    "prefix_property": {
+      "17": true,
+      "29": true,
+      "43": true,
+      "61": true,
+      "79": true
+    }
+  },
+  "datasets": {
+    "17": {
+      "50": {
+        "rows": 112,
+        "groups": 50
+      },
+      "100": {
+        "rows": 217,
+        "groups": 100
+      },
+      "200": {
+        "rows": 420,
+        "groups": 198
+      },
+      "500": {
+        "rows": 1053,
+        "groups": 494
+      },
+      "1000": {
+        "rows": 2061,
+        "groups": 990
+      },
+      "2000": {
+        "rows": 4120,
+        "groups": 1984
+      }
+    },
+    "29": {
+      "50": {
+        "rows": 104,
+        "groups": 50
+      },
+      "100": {
+        "rows": 194,
+        "groups": 99
+      },
+      "200": {
+        "rows": 395,
+        "groups": 198
+      },
+      "500": {
+        "rows": 1031,
+        "groups": 497
+      },
+      "1000": {
+        "rows": 2071,
+        "groups": 997
+      },
+      "2000": {
+        "rows": 4116,
+        "groups": 1990
+      }
+    },
+    "43": {
+      "50": {
+        "rows": 105,
+        "groups": 50
+      },
+      "100": {
+        "rows": 189,
+        "groups": 98
+      },
+      "200": {
+        "rows": 390,
+        "groups": 197
+      },
+      "500": {
+        "rows": 1000,
+        "groups": 496
+      },
+      "1000": {
+        "rows": 2047,
+        "groups": 995
+      },
+      "2000": {
+        "rows": 4118,
+        "groups": 1991
+      }
+    },
+    "61": {
+      "50": {
+        "rows": 87,
+        "groups": 49
+      },
+      "100": {
+        "rows": 186,
+        "groups": 99
+      },
+      "200": {
+        "rows": 376,
+        "groups": 199
+      },
+      "500": {
+        "rows": 1016,
+        "groups": 498
+      },
+      "1000": {
+        "rows": 2032,
+        "groups": 992
+      },
+      "2000": {
+        "rows": 4038,
+        "groups": 1984
+      }
+    },
+    "79": {
+      "50": {
+        "rows": 105,
+        "groups": 49
+      },
+      "100": {
+        "rows": 206,
+        "groups": 98
+      },
+      "200": {
+        "rows": 425,
+        "groups": 197
+      },
+      "500": {
+        "rows": 1044,
+        "groups": 493
+      },
+      "1000": {
+        "rows": 2090,
+        "groups": 992
+      },
+      "2000": {
+        "rows": 4214,
+        "groups": 1985
+      }
+    }
+  },
+  "rewire": {
+    "17": {
+      "requested_swaps": 7680,
+      "successful_swaps": 7680,
+      "edge_overlap_fraction": 0.19661458333333334
+    },
+    "29": {
+      "requested_swaps": 7680,
+      "successful_swaps": 7680,
+      "edge_overlap_fraction": 0.19270833333333334
+    },
+    "43": {
+      "requested_swaps": 7680,
+      "successful_swaps": 7680,
+      "edge_overlap_fraction": 0.1953125
+    },
+    "61": {
+      "requested_swaps": 7680,
+      "successful_swaps": 7680,
+      "edge_overlap_fraction": 0.203125
+    },
+    "79": {
+      "requested_swaps": 7680,
+      "successful_swaps": 7680,
+      "edge_overlap_fraction": 0.19661458333333334
+    }
+  }
+}
